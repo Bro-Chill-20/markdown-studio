@@ -34,12 +34,9 @@ You can write text freely below the diagram.
     async function updatePreview() {
         let content = editor.value;
 
-        // 1. Pre-parse Safe Extraction: Replace mermaid blocks with unique placeholders before marked parsing
-        const mermaidBlocks = [];
-        content = content.replace(/```mermaid\s*\n([\s\S]*?)\n\s*```/g, (match, p1) => {
-            const index = mermaidBlocks.length;
-            mermaidBlocks.push(p1.trim());
-            return `<div class="mermaid" data-mermaid-index="${index}"></div>`;
+        // 1. Wrap mermaid blocks in a strictly isolated container div to prevent text swallowing
+        content = content.replace(/```[ \t]*mermaid\s*([\s\S]*?)```/g, (match, p1) => {
+            return `<div class="mermaid-wrapper" style="margin: 20px 0;"><pre class="mermaid" style="background: transparent !important; padding: 0;">${p1.trim()}</pre></div>`;
         });
 
         // 2. Parse Markdown via marked
@@ -52,29 +49,21 @@ You can write text freely below the diagram.
 
         preview.innerHTML = parsedHTML;
 
-        // 3. Restore Mermaid contents safely into their respective placeholder divs
-        mermaidBlocks.forEach((code, index) => {
-            const div = preview.querySelector(`[data-mermaid-index="${index}"]`);
-            if (div) {
-                div.textContent = code;
-            }
-        });
-
-        // 4. Apply syntax highlighting to normal code blocks (skipping mermaid)
+        // 3. Apply syntax highlighting to normal code blocks (skipping mermaid)
         if (typeof hljs !== 'undefined') {
             preview.querySelectorAll('pre code').forEach((block) => {
-                if (!block.closest('.mermaid')) {
+                if (!block.closest('.mermaid') && !block.closest('.mermaid-wrapper')) {
                     hljs.highlightElement(block);
                 }
             });
         }
 
-        // 5. Render Math Equations with MathJax
+        // 4. Render Math Equations with MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
         }
 
-        // 6. Render Mermaid Diagrams
+        // 5. Render Mermaid Diagrams securely inside their isolated wrappers
         if (window.mermaid) {
             try {
                 await mermaid.run({
