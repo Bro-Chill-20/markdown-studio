@@ -21,32 +21,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const defaultMarkdown = `# Mermaid Fix Test
+    const defaultMarkdown = `# Ultimate Test Studio
 
 \`\`\`mermaid
 graph TD
-    A[Start] --> B[Fixed]
+    A[Start] --> B[Clean Render]
 \`\`\`
 
-You can now write anything freely below the mermaid block!
+You can write text freely below the diagram.
 `;
 
     async function updatePreview() {
-        const content = editor.value;
+        let content = editor.value;
 
-        let processedContent = content.replace(/```mermaid\s*([\s\S]*?)```/g, (match, p1) => {
-            return `<div class="mermaid">${p1.trim()}</div>`;
+        // Safely extract mermaid blocks and replace with placeholders first
+        const mermaidBlocks = [];
+        content = content.replace(/```mermaid([\s\S]*?)```/g, (match, p1) => {
+            const index = mermaidBlocks.length;
+            mermaidBlocks.push(p1.trim());
+            return `__MERMAID_PLACEHOLDER_${index}__`;
         });
 
+        // Parse remaining markdown via marked.js safely
         let parsedHTML = '';
         if (typeof marked !== 'undefined') {
-            parsedHTML = marked.parse(processedContent);
+            parsedHTML = marked.parse(content);
         } else {
             parsedHTML = content;
         }
 
+        // Put back the mermaid divs in their exact places
+        mermaidBlocks.forEach((code, index) => {
+            const placeholder = `<p>__MERMAID_PLACEHOLDER_${index}__</p>`;
+            const altPlaceholder = `__MERMAID_PLACEHOLDER_${index}__`;
+            const mermaidDiv = `<div class="mermaid">${code}</div>`;
+            parsedHTML = parsedHTML.replace(placeholder, mermaidDiv).replace(altPlaceholder, mermaidDiv);
+        });
+
         preview.innerHTML = parsedHTML;
 
+        // Apply Syntax Highlighting to normal code blocks
         if (typeof hljs !== 'undefined') {
             preview.querySelectorAll('pre code').forEach((block) => {
                 if (!block.closest('.mermaid')) {
@@ -55,10 +69,12 @@ You can now write anything freely below the mermaid block!
             });
         }
 
+        // Render Math Equations with MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
         }
 
+        // Render Mermaid Diagrams
         if (window.mermaid) {
             try {
                 await mermaid.run({
@@ -69,14 +85,14 @@ You can now write anything freely below the mermaid block!
             }
         }
 
-        const text = content.trim();
+        const text = editor.value.trim();
         const words = text ? text.split(/\s+/).length : 0;
-        const chars = content.length;
+        const chars = editor.value.length;
         if (wordCount) {
             wordCount.textContent = `${words} words | ${chars} chars`;
         }
 
-        localStorage.setItem('markdown_content', content);
+        localStorage.setItem('markdown_content', editor.value);
     }
 
     const savedContent = localStorage.getItem('markdown_content');
