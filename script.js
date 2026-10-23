@@ -34,15 +34,15 @@ You can write text freely below the diagram.
     async function updatePreview() {
         let content = editor.value;
 
-        // 1. Safe Placeholder Strategy: Isolate mermaid blocks before marked parsing
+        // Strict non-greedy regex to isolate mermaid blocks precisely without eating following content
         const mermaidBlocks = [];
-        content = content.replace(/```mermaid\s*([\s\S]*?)\s*```/g, (match, p1) => {
+        content = content.replace(/```mermaid\s*\n([\s\S]*?)\n\s*```/g, (match, p1) => {
             const index = mermaidBlocks.length;
             mermaidBlocks.push(p1.trim());
             return `<div class="mermaid" data-mermaid-index="${index}"></div>`;
         });
 
-        // 2. Parse Markdown
+        // Parse Markdown via marked
         let parsedHTML = '';
         if (typeof marked !== 'undefined') {
             parsedHTML = marked.parse(content);
@@ -52,7 +52,7 @@ You can write text freely below the diagram.
 
         preview.innerHTML = parsedHTML;
 
-        // 3. Restore mermaid content safely into their respective divs
+        // Restore mermaid contents into their respective placeholder divs safely
         mermaidBlocks.forEach((code, index) => {
             const div = preview.querySelector(`[data-mermaid-index="${index}"]`);
             if (div) {
@@ -60,7 +60,7 @@ You can write text freely below the diagram.
             }
         });
 
-        // 4. Highlight code blocks (skipping mermaid)
+        // Apply syntax highlighting to normal code blocks
         if (typeof hljs !== 'undefined') {
             preview.querySelectorAll('pre code').forEach((block) => {
                 if (!block.closest('.mermaid')) {
@@ -69,12 +69,12 @@ You can write text freely below the diagram.
             });
         }
 
-        // 5. Render Math Equations with MathJax
+        // Render Math equations with MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
         }
 
-        // 6. Render Mermaid Diagrams
+        // Render Mermaid Diagrams
         if (window.mermaid) {
             try {
                 await mermaid.run({
