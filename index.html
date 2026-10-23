@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Markdown Studio</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Highlight.js CSS for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Header Section -->
+  <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-lg">
+          <i class="fa-solid fa-file-code text-xl"></i>
+        </div>
+        <h1 class="text-xl font-bold tracking-tight text-white">Markdown Studio</h1>
+      </div>
+
+      <!-- Toolbar Buttons -->
+      <div class="flex items-center space-x-2">
+        <button id="copy-html-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs sm:text-sm px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 border border-slate-600">
+          <i class="fa-regular fa-copy"></i> Copy HTML
+        </button>
+        <button id="download-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 shadow-md">
+          <i class="fa-solid fa-download"></i> Download .md
+        </button>
+        <button id="clear-btn" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs sm:text-sm px-3.5 py-2 rounded-lg transition-all flex items-center gap-2">
+          <i class="fa-solid fa-trash-can"></i> Clear
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <!-- Left Column: Markdown Editor -->
+    <div class="flex flex-col bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl min-h-[500px]">
+      <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-700 flex justify-between items-center">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <i class="fa-solid fa-code mr-1.5 text-indigo-400"></i> Editor
+        </span>
+        <span id="stats" class="text-xs font-mono text-slate-400">0 words | 0 chars</span>
+      </div>
+      <textarea 
+        id="markdown-input" 
+        class="flex-1 w-full bg-slate-800 p-4 text-slate-200 font-mono text-sm focus:outline-none resize-none leading-relaxed min-h-[450px]"
+        placeholder="Type your markdown here..."
+      ></textarea>
+    </div>
+
+    <!-- Right Column: Live Previewer -->
+    <div class="flex flex-col bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl min-h-[500px]">
+      <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-700 flex justify-between items-center">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <i class="fa-regular fa-eye mr-1.5 text-indigo-400"></i> Live Preview
+        </span>
+      </div>
+      <div 
+        id="preview-output" 
+        class="prose flex-1 w-full p-5 overflow-y-auto min-h-[450px]"
+      ></div>
+    </div>
+
+  </main>
+
+  <!-- External Libraries JS -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Custom Script -->
+  <script src="script.js"></script>
+</body>
+</html>
