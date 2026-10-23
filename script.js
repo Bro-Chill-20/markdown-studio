@@ -27,12 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
 graph TD
     A[Start] --> B[Fixed]
 \`\`\`
+
+You can now write anything freely below the mermaid block!
 `;
 
     async function updatePreview() {
         const content = editor.value;
 
-        let processedContent = content.replace(/```mermaid\s*\n([\s\S]*?)\n\s*```/g, (match, p1) => {
+        let processedContent = content.replace(/```mermaid\s*([\s\S]*?)```/g, (match, p1) => {
             return `<div class="mermaid">${p1.trim()}</div>`;
         });
 
@@ -52,18 +54,6 @@ graph TD
                 }
             });
         }
-
-        preview.querySelectorAll('pre code.language-mermaid, code.language-mermaid').forEach((block) => {
-            const pre = block.parentElement;
-            const div = document.createElement('div');
-            div.className = 'mermaid';
-            div.textContent = block.textContent;
-            if (pre && pre.tagName === 'PRE') {
-                pre.replaceWith(div);
-            } else {
-                block.replaceWith(div);
-            }
-        });
 
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
