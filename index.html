@@ -4,34 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Basic SEO Meta Tags -->
   <title>Markdown Studio - Free Online Markdown Editor & Live Previewer</title>
   <meta name="description" content="Markdown Studio is a fast, responsive, dark-themed online Markdown editor with real-time preview, word counter, and syntax highlighting. Built by Bro-Chill-20.">
   <meta name="keywords" content="Markdown Studio, Markdown Editor, Bro-Chill-20, Online Markdown Preview, Live Markdown Editor, HTML Preview, GitHub Pages Editor">
   <meta name="author" content="Bro-Chill-20">
-  <meta name="robots" content="index, follow">
 
-  <!-- Open Graph / Social Media Meta Tags -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://bro-chill-20.github.io/markdown-studio/">
-  <meta property="og:title" content="Markdown Studio - Online Markdown Editor">
-  <meta property="og:description" content="Write Markdown with instant real-time live preview and code highlighting. Responsive and dark-themed editor.">
-  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Highlight.js CSS for Syntax Highlighting -->
+  <!-- Tailwind Typography (Prose) for gorgeous Markdown styling like StackEdit -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+  <!-- Highlight.js CSS for Code Syntax Highlighting -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-  
+
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- External JS Libraries loaded in head -->
+  <!-- External JS Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- MathJax Configuration and Script for LaTeX Math Support -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
 
@@ -69,13 +80,12 @@
         </span>
       </div>
       <div id="preview" class="w-full h-[500px] md:h-full p-4 md:p-6 overflow-y-auto bg-gray-900 text-gray-200 prose prose-invert max-w-none">
-        <!-- Rendered HTML will appear here -->
       </div>
     </div>
 
   </main>
 
-  <!-- Custom JavaScript (Deferred so DOM is loaded) -->
+  <!-- Custom JavaScript -->
   <script src="script.js" defer></script>
 </body>
 </html>

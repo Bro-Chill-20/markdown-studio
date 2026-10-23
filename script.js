@@ -3,11 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const preview = document.getElementById('preview');
     const wordCount = document.getElementById('word-count');
 
-    // Configure marked options
+    // Configure marked options for StackEdit style features (Tables, GFM, Breaks)
     if (typeof marked !== 'undefined') {
         marked.setOptions({
             breaks: true,
             gfm: true,
+            headerIds: true,
             highlight: function (code, lang) {
                 if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
                     try {
@@ -23,29 +24,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const defaultMarkdown = `# Welcome to Markdown Studio 🚀
 
-An interactive **Markdown Editor & Previewer** built with HTML, Tailwind CSS, and JavaScript.
+StackEdit er moto apnader ei app-e ekhon shob kichu support korbe!
 
 ---
 
-## 🌟 Key Features
-- **Real-Time Preview:** Instant rendering as you type.
-- **LocalStorage Support:** Keeps your content saved even after refreshing.
-- **Easy Export:** Download as a \`.md\` file or copy raw HTML instantly.
-- **Responsive Dark Theme:** Sleek and clean UI powered by Tailwind CSS.
+## 📊 1. Tables Support
+| Feature | Status | Description |
+| :--- | :---: | ---: |
+| **Live Preview** | ✅ Active | Instant rendering |
+| **Math & LaTeX** | ✅ Active | Gamma, Integrals etc. |
+| **Tables & Lists** | ✅ Active | GFM Tables supported |
 
 ---
 
-### 💡 Inspiration
-> "Simplicity is prerequisite for reliability." - *Edsger W. Dijkstra*
+## ✔️ 2. Task Lists
+- [x] Create Markdown Studio repository
+- [x] Configure Tailwind CSS & Highlight.js
+- [ ] Add PDF Export feature
 
 ---
 
-### 💻 Code Example
+## 📐 3. Math & LaTeX Formulas
+The *Gamma function* satisfying $\\Gamma(n) = (n-1)!\\quad\\forall n\\in\\mathbb N$ is via the Euler integral:
+$$
+\\Gamma(z) = \\int_0^\\infty t^{z-1}e^{-t}dt
+$$
+
+---
+
+### 💻 4. Code Syntax Highlighting
 \`\`\`javascript
-function calculateSum(a, b) {
-    return a + b;
+function stackEditStyle() {
+    console.log("Markdown Studio is fully loaded!");
 }
-console.log(calculateSum(5, 10));
+stackEditStyle();
 \`\`\`
 `;
 
@@ -64,6 +76,11 @@ console.log(calculateSum(5, 10));
             preview.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightElement(block);
             });
+        }
+
+        // Render Math Equations with MathJax (StackEdit style)
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
         }
 
         // Update Word and Character count
