@@ -21,49 +21,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const defaultMarkdown = `# Welcome to StackEdit style Markdown Studio 🚀
+    const defaultMarkdown = `# Markdown Studio Ultimate 🚀
 
-Paste your StackEdit markdown text here to test!
-
----
-
-## 📊 Tables Support
-| Feature | Status | Description |
-| :--- | :---: | ---: |
-| **Live Preview** | ✅ Active | Instant rendering |
-| **Math & LaTeX** | ✅ Active | Formulas supported |
-| **UML Diagrams** | ✅ Active | Mermaid charts |
+Type anything below to test live rendering!
 
 ---
 
-## ✔️ Task Lists
-- [x] Setup GitHub Pages
-- [x] Add MathJax & Highlight.js
-- [x] Add Mermaid Diagram support
+## 📊 Tables & Task Lists
+| Feature | Status |
+| :--- | :---: |
+| Math | ✅ |
+| Mermaid | ✅ |
+
+- [x] Task one
+- [ ] Task two
 
 ---
 
-## 📐 Math & LaTeX Formulas
-The *Gamma function* satisfying $\\Gamma(n) = (n-1)!\\quad\\forall n\\in\\mathbb N$ is via the Euler integral:
+## 📐 Math Formula
 $$
-\\Gamma(z) = \\int_0^\\infty t^{z-1}e^{-t}dt
+E = mc^2
 $$
 
 ---
 
-## 📈 UML Diagrams (Mermaid)
+## 📈 Mermaid Diagram
 \`\`\`mermaid
-sequenceDiagram
-    Alice ->> Bob: Hello Bob, how are you?
-    Bob-->>John: How about you John?
-    Bob--x Alice: I am good thanks!
-\`\`\`
-
-\`\`\`mermaid
-graph LR
-    A[Square Rect] -- Link text --> B((Circle))
-    A --> C(Round Rect)
-    B --> D{Rhombus}
+graph TD
+    A[Start] --> B[Live Preview]
+    B --> C[Success!]
 \`\`\`
 `;
 
@@ -74,11 +60,14 @@ graph LR
             return `<div class="mermaid">${p1.trim()}</div>`;
         });
 
+        let parsedHTML = '';
         if (typeof marked !== 'undefined') {
-            preview.innerHTML = marked.parse(processedContent);
+            parsedHTML = marked.parse(processedContent);
         } else {
-            preview.innerText = content;
+            parsedHTML = content;
         }
+
+        preview.innerHTML = parsedHTML;
 
         if (typeof hljs !== 'undefined') {
             preview.querySelectorAll('pre code').forEach((block) => {
@@ -98,7 +87,7 @@ graph LR
                     nodes: preview.querySelectorAll('.mermaid')
                 });
             } catch (err) {
-                console.error("Mermaid rendering error:", err);
+                console.error(err);
             }
         }
 
