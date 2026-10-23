@@ -21,42 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const defaultMarkdown = `# Markdown Studio Ultimate 🚀
+    const defaultMarkdown = `# Mermaid Fix Test
 
-Type anything below to test live rendering!
-
----
-
-## 📊 Tables & Task Lists
-| Feature | Status |
-| :--- | :---: |
-| Math | ✅ |
-| Mermaid | ✅ |
-
-- [x] Task one
-- [ ] Task two
-
----
-
-## 📐 Math Formula
-$$
-E = mc^2
-$$
-
----
-
-## 📈 Mermaid Diagram
 \`\`\`mermaid
 graph TD
-    A[Start] --> B[Live Preview]
-    B --> C[Success!]
+    A[Start] --> B[Fixed]
 \`\`\`
 `;
 
     async function updatePreview() {
         const content = editor.value;
 
-        let processedContent = content.replace(/```mermaid([\s\S]*?)```/g, (match, p1) => {
+        let processedContent = content.replace(/```mermaid\s*([\s\S]*?)```/g, (match, p1) => {
             return `<div class="mermaid">${p1.trim()}</div>`;
         });
 
@@ -76,6 +52,18 @@ graph TD
                 }
             });
         }
+
+        preview.querySelectorAll('pre code.language-mermaid, code.language-mermaid').forEach((block) => {
+            const pre = block.parentElement;
+            const div = document.createElement('div');
+            div.className = 'mermaid';
+            div.textContent = block.textContent;
+            if (pre && pre.tagName === 'PRE') {
+                pre.replaceWith(div);
+            } else {
+                block.replaceWith(div);
+            }
+        });
 
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
