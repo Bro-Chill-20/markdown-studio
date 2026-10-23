@@ -3,45 +3,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const preview = document.getElementById('preview');
     const wordCount = document.getElementById('word-count');
 
+    // Basic marked configuration without breaking parser
     if (typeof marked !== 'undefined') {
-        // Modern marked.use() configuration for v4/v5+
-        marked.use({
-            gfm: true,
+        marked.setOptions({
             breaks: true,
-            highlight: function (code, lang) {
-                if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
-                    try {
-                        return hljs.highlight(code, { language: lang }).value;
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }
-                if (typeof hljs !== 'undefined') {
-                    try {
-                        return hljs.highlightAuto(code).value;
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }
-                return code;
-            },
-            langPrefix: 'hljs language-'
+            gfm: true,
+            headerIds: true
         });
     }
 
     const defaultMarkdown = `# Markdown Studio
 
-\`\`\`python
-def fibonacci(n):
-    a, b = 0, 1
-    sequence = []
-    for _ in range(n):
-        sequence.append(a)
-        a, b = b, a + b
-    return sequence
-
-print("Fibonacci Series:", fibonacci(7))
+\`\`\`javascript
+// This stays safely inside the code box
+const greeting = "Hello Markdown Studio!";
+console.log(greeting);
 \`\`\`
+
+This is normal text completely outside the code box!
 `;
 
     async function updatePreview() {
@@ -56,12 +35,10 @@ print("Fibonacci Series:", fibonacci(7))
 
         preview.innerHTML = parsedHTML;
 
-        // Fallback syntax highlighting check
+        // Safely highlight code blocks after rendering
         if (typeof hljs !== 'undefined') {
             preview.querySelectorAll('pre code').forEach((block) => {
-                if (!block.classList.contains('hljs')) {
-                    hljs.highlightElement(block);
-                }
+                hljs.highlightElement(block);
             });
         }
 
