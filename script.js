@@ -4,20 +4,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const wordCount = document.getElementById('word-count');
 
     if (typeof marked !== 'undefined') {
+        const renderer = new marked.Renderer();
+        renderer.code = function (code, infostring, escaped) {
+            const lang = (infostring || '').match(/\S*/)[0];
+            if (lang === 'mermaid') {
+                return `<div class="mermaid">${code}</div>`;
+            }
+            if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+                try {
+                    const highlighted = hljs.highlight(code, { language: lang }).value;
+                    return `<pre><code class="language-${lang}">${highlighted}</code></pre>`;
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            return `<pre><code>${code}</code></pre>`;
+        };
+
         marked.setOptions({
+            renderer: renderer,
             breaks: true,
             gfm: true,
-            headerIds: true,
-            highlight: function (code, lang) {
-                if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
-                    try {
-                        return hljs.highlight(code, { language: lang }).value;
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }
-                return code;
-            }
+            headerIds: true
         });
     }
 
@@ -32,17 +40,8 @@ You can write text freely below the diagram.
 `;
 
     async function updatePreview() {
-        let content = editor.value;
+        const content = editor.value;
 
-        // Safely extract mermaid blocks and replace with placeholders first
-        const mermaidBlocks = [];
-        content = content.replace(/```mermaid([\s\S]*?)```/g, (match, p1) => {
-            const index = mermaidBlocks.length;
-            mermaidBlocks.push(p1.trim());
-            return `__MERMAID_PLACEHOLDER_${index}__`;
-        });
-
-        // Parse remaining markdown via marked.js safely
         let parsedHTML = '';
         if (typeof marked !== 'undefined') {
             parsedHTML = marked.parse(content);
@@ -50,31 +49,12 @@ You can write text freely below the diagram.
             parsedHTML = content;
         }
 
-        // Put back the mermaid divs in their exact places
-        mermaidBlocks.forEach((code, index) => {
-            const placeholder = `<p>__MERMAID_PLACEHOLDER_${index}__</p>`;
-            const altPlaceholder = `__MERMAID_PLACEHOLDER_${index}__`;
-            const mermaidDiv = `<div class="mermaid">${code}</div>`;
-            parsedHTML = parsedHTML.replace(placeholder, mermaidDiv).replace(altPlaceholder, mermaidDiv);
-        });
-
         preview.innerHTML = parsedHTML;
 
-        // Apply Syntax Highlighting to normal code blocks
-        if (typeof hljs !== 'undefined') {
-            preview.querySelectorAll('pre code').forEach((block) => {
-                if (!block.closest('.mermaid')) {
-                    hljs.highlightElement(block);
-                }
-            });
-        }
-
-        // Render Math Equations with MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
         }
 
-        // Render Mermaid Diagrams
         if (window.mermaid) {
             try {
                 await mermaid.run({
@@ -85,14 +65,14 @@ You can write text freely below the diagram.
             }
         }
 
-        const text = editor.value.trim();
+        const text = content.trim();
         const words = text ? text.split(/\s+/).length : 0;
-        const chars = editor.value.length;
+        const chars = content.length;
         if (wordCount) {
             wordCount.textContent = `${words} words | ${chars} chars`;
         }
 
-        localStorage.setItem('markdown_content', editor.value);
+        localStorage.setItem('markdown_content', content);
     }
 
     const savedContent = localStorage.getItem('markdown_content');
