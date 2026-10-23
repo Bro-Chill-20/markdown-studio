@@ -32,7 +32,7 @@ graph TD
     async function updatePreview() {
         const content = editor.value;
 
-        let processedContent = content.replace(/```mermaid\s*([\s\S]*?)```/g, (match, p1) => {
+        let processedContent = content.replace(/```mermaid\s*\n([\s\S]*?)\n\s*```/g, (match, p1) => {
             return `<div class="mermaid">${p1.trim()}</div>`;
         });
 
