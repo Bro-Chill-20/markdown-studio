@@ -32,8 +32,17 @@ You can write text freely below the diagram.
 `;
 
     async function updatePreview() {
-        const content = editor.value;
+        let content = editor.value;
 
+        // 1. Safe Placeholder Strategy: Isolate mermaid blocks before marked parsing
+        const mermaidBlocks = [];
+        content = content.replace(/```mermaid\s*([\s\S]*?)\s*```/g, (match, p1) => {
+            const index = mermaidBlocks.length;
+            mermaidBlocks.push(p1.trim());
+            return `<div class="mermaid" data-mermaid-index="${index}"></div>`;
+        });
+
+        // 2. Parse Markdown
         let parsedHTML = '';
         if (typeof marked !== 'undefined') {
             parsedHTML = marked.parse(content);
@@ -43,34 +52,29 @@ You can write text freely below the diagram.
 
         preview.innerHTML = parsedHTML;
 
-        // 1. Highlight normal code blocks (skip mermaid)
+        // 3. Restore mermaid content safely into their respective divs
+        mermaidBlocks.forEach((code, index) => {
+            const div = preview.querySelector(`[data-mermaid-index="${index}"]`);
+            if (div) {
+                div.textContent = code;
+            }
+        });
+
+        // 4. Highlight code blocks (skipping mermaid)
         if (typeof hljs !== 'undefined') {
             preview.querySelectorAll('pre code').forEach((block) => {
-                if (!block.classList.contains('language-mermaid')) {
+                if (!block.closest('.mermaid')) {
                     hljs.highlightElement(block);
                 }
             });
         }
 
-        // 2. Safely convert mermaid code blocks to mermaid divs in DOM
-        preview.querySelectorAll('pre code.language-mermaid, code.language-mermaid').forEach((block) => {
-            const pre = block.closest('pre');
-            const div = document.createElement('div');
-            div.className = 'mermaid';
-            div.textContent = block.textContent;
-            if (pre) {
-                pre.replaceWith(div);
-            } else {
-                block.replaceWith(div);
-            }
-        });
-
-        // 3. Render Math Equations with MathJax
+        // 5. Render Math Equations with MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
         }
 
-        // 4. Render Mermaid Diagrams
+        // 6. Render Mermaid Diagrams
         if (window.mermaid) {
             try {
                 await mermaid.run({
@@ -81,14 +85,14 @@ You can write text freely below the diagram.
             }
         }
 
-        const text = content.trim();
+        const text = editor.value.trim();
         const words = text ? text.split(/\s+/).length : 0;
-        const chars = content.length;
+        const chars = editor.value.length;
         if (wordCount) {
             wordCount.textContent = `${words} words | ${chars} chars`;
         }
 
-        localStorage.setItem('markdown_content', content);
+        localStorage.setItem('markdown_content', editor.value);
     }
 
     const savedContent = localStorage.getItem('markdown_content');
