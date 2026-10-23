@@ -4,28 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const wordCount = document.getElementById('word-count');
 
     if (typeof marked !== 'undefined') {
-        const renderer = new marked.Renderer();
-        renderer.code = function (code, infostring, escaped) {
-            const lang = (infostring || '').match(/\S*/)[0];
-            if (lang === 'mermaid') {
-                return `<div class="mermaid">${code}</div>`;
-            }
-            if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
-                try {
-                    const highlighted = hljs.highlight(code, { language: lang }).value;
-                    return `<pre><code class="language-${lang}">${highlighted}</code></pre>`;
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-            return `<pre><code>${code}</code></pre>`;
-        };
-
         marked.setOptions({
-            renderer: renderer,
             breaks: true,
             gfm: true,
-            headerIds: true
+            headerIds: true,
+            highlight: function (code, lang) {
+                if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                return code;
+            }
         });
     }
 
@@ -51,10 +43,34 @@ You can write text freely below the diagram.
 
         preview.innerHTML = parsedHTML;
 
+        // 1. Highlight normal code blocks (skip mermaid)
+        if (typeof hljs !== 'undefined') {
+            preview.querySelectorAll('pre code').forEach((block) => {
+                if (!block.classList.contains('language-mermaid')) {
+                    hljs.highlightElement(block);
+                }
+            });
+        }
+
+        // 2. Safely convert mermaid code blocks to mermaid divs in DOM
+        preview.querySelectorAll('pre code.language-mermaid, code.language-mermaid').forEach((block) => {
+            const pre = block.closest('pre');
+            const div = document.createElement('div');
+            div.className = 'mermaid';
+            div.textContent = block.textContent;
+            if (pre) {
+                pre.replaceWith(div);
+            } else {
+                block.replaceWith(div);
+            }
+        });
+
+        // 3. Render Math Equations with MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
         }
 
+        // 4. Render Mermaid Diagrams
         if (window.mermaid) {
             try {
                 await mermaid.run({
