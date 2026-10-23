@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const preview = document.getElementById('preview');
     const wordCount = document.getElementById('word-count');
 
-    // Basic marked configuration without breaking parser
+    // Basic marked configuration
     if (typeof marked !== 'undefined') {
         marked.setOptions({
             breaks: true,
@@ -21,6 +21,9 @@ console.log(greeting);
 \`\`\`
 
 This is normal text completely outside the code box!
+
+## Math Test
+Inline math: $E = mc^2$
 `;
 
     async function updatePreview() {
@@ -42,9 +45,16 @@ This is normal text completely outside the code box!
             });
         }
 
-        // Render Math Equations with MathJax
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
+        // Safely render Math Equations with MathJax 3
+        if (window.MathJax) {
+            if (window.MathJax.startup && window.MathJax.startup.promise) {
+                window.MathJax.startup.promise.then(() => {
+                    window.MathJax.texReset();
+                    window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
+                });
+            } else if (window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([preview]).catch((err) => console.log(err));
+            }
         }
 
         const text = editor.value.trim();
