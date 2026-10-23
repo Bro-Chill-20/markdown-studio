@@ -85,6 +85,7 @@ console.log(calculateSum(5, 10));
     // Initial render
     updatePreview();
 
-    // Event listener for real-time update
+    // Instant Event Listeners
     editor.addEventListener('input', updatePreview);
+    editor.addEventListener('keyup', updatePreview);
 });
