@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const preview = document.getElementById('preview');
     const wordCount = document.getElementById('word-count');
 
-    // Basic marked configuration
     if (typeof marked !== 'undefined') {
         marked.setOptions({
             breaks: true,
@@ -15,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultMarkdown = `# Markdown Studio
 
 \`\`\`javascript
-// This stays safely inside the code box
 const greeting = "Hello Markdown Studio!";
 console.log(greeting);
 \`\`\`
@@ -38,14 +36,12 @@ Inline math: $E = mc^2$
 
         preview.innerHTML = parsedHTML;
 
-        // Safely highlight code blocks after rendering
         if (typeof hljs !== 'undefined') {
             preview.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightElement(block);
             });
         }
 
-        // Safely render Math Equations with MathJax 3
         if (window.MathJax) {
             if (window.MathJax.startup && window.MathJax.startup.promise) {
                 window.MathJax.startup.promise.then(() => {
